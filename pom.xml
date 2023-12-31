@@ -10,7 +10,7 @@
 
     <groupId>io.lumeer.embedmongo</groupId>
     <artifactId>embedmongo-maven-plugin</artifactId>
-    <version>1.0.1</version>
+    <version>1.0.1-SNAPSHOT</version>
 
     <packaging>maven-plugin</packaging>
 
