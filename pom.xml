@@ -10,7 +10,7 @@
 
     <groupId>io.lumeer.embedmongo</groupId>
     <artifactId>embedmongo-maven-plugin</artifactId>
-    <version>1.0.1</version>
+    <version>1.0.2-SNAPSHOT</version>
 
     <packaging>maven-plugin</packaging>
 
@@ -35,7 +35,7 @@
         <url>http://github.com/Lumeer/embedmongo-maven-plugin/tree/master</url>
         <connection>scm:git:git@github.com:Lumeer/embedmongo-maven-plugin.git</connection>
         <developerConnection>scm:git:git@github.com:Lumeer/embedmongo-maven-plugin.git</developerConnection>
-        <tag>1.0.1</tag>
+        <tag>HEAD</tag>
     </scm>
 
     <properties>
