@@ -1,19 +1,22 @@
-/**
- * Copyright © 2015 Pablo Diaz
+/*
+ * Lumeer: Modern Data Definition and Processing Platform
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Copyright (C) since 2017 Lumeer.io, s.r.o. and/or its affiliates.
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.github.joelittlejohn.embedmongo;
+package io.lumeer.embedmongo;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.plugin.AbstractMojo;
@@ -22,12 +25,7 @@ import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 
-import de.flapdoodle.embed.mongo.distribution.IFeatureAwareVersion;
 import de.flapdoodle.embed.mongo.distribution.Version;
-import de.flapdoodle.embed.mongo.distribution.Versions;
-import de.flapdoodle.embed.mongo.distribution.Feature;
-
-import java.util.stream.Stream;
 
 /**
  * Created by pablo on 28/03/15.
@@ -64,14 +62,6 @@ public abstract class AbstractEmbeddedMongoMojo extends AbstractMojo {
     private String version;
 
     /**
-     * The flapdoodle features required for download e.g. sync_delay,no_http_interface_arg
-     *
-     * @since 0.4.2
-     */
-    @Parameter(property = "embedmongo.features")
-    private String features;
-
-    /**
      * Block immediately and wait until MongoDB is explicitly stopped (eg:
      * {@literal <ctrl-c>}). This option makes this goal similar in spirit to
      * something like jetty:run, useful for interactive debugging.
@@ -104,33 +94,23 @@ public abstract class AbstractEmbeddedMongoMojo extends AbstractMojo {
         // Nothing to do, this is just to allow do things if mojo is skipped
     }
 
-    protected IFeatureAwareVersion getVersion() {
+    protected Version getVersion() {
         String versionEnumName = this.version.toUpperCase().replaceAll("\\.", "_");
 
         if (versionEnumName.charAt(0) != 'V') {
             versionEnumName = "V" + versionEnumName;
         }
 
-
-        Feature[] features = new Feature[0];
-        if (this.features != null) {
-            try {
-                features = Stream.of(this.features.split(",")).map(String::trim).map(String::toUpperCase).map(Feature::valueOf).toArray(Feature[]::new);
-            } catch (IllegalArgumentException e) {
-                getLog().warn("Unrecognised feature '" + this.features + ". Attempting download anyway...");
-            }
-        }
-
         try {
-            return Versions.withFeatures(Version.valueOf(versionEnumName), features);
+            return Version.valueOf(versionEnumName);
         } catch (IllegalArgumentException e) {
             getLog().warn("Unrecognised MongoDB version '" + this.version + "', this might be a new version that we don't yet know about. Attempting download anyway...");
-            return Versions.withFeatures(() -> version, features);
+            throw e;
         }
     }
 
-    public String getFeatures() {
-        return features;
+    protected de.flapdoodle.embed.process.distribution.Version getDistributionVersion() {
+        return de.flapdoodle.embed.process.distribution.Version.of(this.version);
     }
 
     protected Integer getPort() {

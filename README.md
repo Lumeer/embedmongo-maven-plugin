@@ -1,21 +1,21 @@
 # embedmongo-maven-plugin [![Build Status](https://travis-ci.org/joelittlejohn/embedmongo-maven-plugin.png)](https://travis-ci.org/joelittlejohn/embedmongo-maven-plugin) [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.github.joelittlejohn.embedmongo/embedmongo-maven-plugin/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.github.joelittlejohn.embedmongo/embedmongo-maven-plugin)
 
+Based on original [plugin by Joe Little John](https://github.com/joelittlejohn/embedmongo-maven-plugin/)
+who stopped maintaining it.
+
+We added support for recent flapdoodle API and mongodb-driver-sync.
+
 Maven plugin wrapper for the [flapdoodle.de embedded MongoDB API](http://github.com/flapdoodle-oss/embedmongo.flapdoodle.de).
 
 This plugin lets you start and stop an instance of MongoDB during a Maven build, e.g. for integration testing. The Mongo instance isn't strictly embedded (it's not running within the JVM of your application), but it _is_ a managed instance that exists only for the lifetime of your build.
-
-## Versions
-
-* For Java 8 and later: `<version>0.4.1</version>`
-* For Java 6/7: `<version>0.3.5</version>`
 
 ## Usage
 
 ```xml
 <plugin>
-  <groupId>com.github.joelittlejohn.embedmongo</groupId>
+  <groupId>io.lumeer.embedmongo</groupId>
   <artifactId>embedmongo-maven-plugin</artifactId>
-  <version>0.4.1</version>
+  <version>1.0.0</version>
   <executions>
     <execution>
       <id>start</id>
@@ -29,7 +29,7 @@ This plugin lets you start and stop an instance of MongoDB during a Maven build,
         <randomPort>true</randomPort>
         <!-- optional, default is false, if true allocates a random port and overrides embedmongo.port -->
         
-        <version>2.0.4</version>
+        <version>4.0.28</version>
         <!-- optional, default 2.2.1 -->
         
         <features>ONLY_WITH_SSL, ONLY_WINDOWS_2008_SERVER, NO_HTTP_INTERFACE_ARG</features>
@@ -70,7 +70,7 @@ This plugin lets you start and stop an instance of MongoDB during a Maven build,
         <goal>mongo-scripts</goal>
       </goals>
       <configuration>
-        <version>2.0.4</version>
+        <version>4.0.28</version>
         <!-- optional, default 2.2.1 -->
 
         <scriptsDirectory>...</scriptsDirectory>
@@ -147,5 +147,3 @@ This plugin lets you start and stop an instance of MongoDB during a Maven build,
 * If you're having trouble with Windows firewall rules, try setting the _bindIp_ config property to `127.0.0.1`.
 * If you'd like the start goal to start mongodb and wait, you can add `-Dembedmongo.wait` to your Maven command line arguments or `-Dembedmongo.import.wait` if you want the imports
 * If you are using a charset encoding to load scripts, refer to the [IANA Charset Registry](http://www.iana.org/assignments/character-sets/character-sets.xhtml).  Accepted charsets are found in the __Preferred MIME Name__ column.
-
-### Copyright © 2012 Joe Littlejohn

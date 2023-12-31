@@ -1,22 +1,27 @@
-/**
- * Copyright © 2012 Pierre-Jean Vardanéga
+/*
+ * Lumeer: Modern Data Definition and Processing Platform
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Copyright (C) since 2017 Lumeer.io, s.r.o. and/or its affiliates.
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.github.joelittlejohn.embedmongo;
+package io.lumeer.embedmongo;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.Scanner;
 
 import org.apache.maven.plugin.MojoExecutionException;
@@ -24,11 +29,16 @@ import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
+import org.bson.BsonDocument;
+import org.bson.BsonString;
+import org.bson.Document;
+import org.bson.conversions.Bson;
 
-import com.mongodb.CommandResult;
-import com.mongodb.DB;
-import com.mongodb.MongoClient;
 import com.mongodb.MongoException;
+import com.mongodb.ServerAddress;
+import com.mongodb.client.MongoClient;
+import com.mongodb.client.MongoClients;
+import com.mongodb.client.MongoDatabase;
 
 /**
  * When invoked, this goal connects to an instance of mongo and execute some
@@ -73,7 +83,7 @@ public class MongoScriptsMojo extends AbstractEmbeddedMongoMojo {
 
     @Override
     public void executeStart() throws MojoExecutionException, MojoFailureException {
-        DB db = connectToMongoAndGetDatabase();
+        MongoDatabase db = connectToMongoAndGetDatabase();
 
         if (scriptsDirectory.isDirectory()) {
             Scanner scanner = null;
@@ -110,15 +120,16 @@ public class MongoScriptsMojo extends AbstractEmbeddedMongoMojo {
                                 scanner.close();
                             }
                         }
-                        CommandResult result;
+                        Document result;
                         try {
-                            result = db.doEval("(function() {" + instructions.toString() + "})();", new Object[0]);
+                            Bson command = new BsonDocument("eval", new BsonString("function() {" + instructions.toString() + "}"));
+                            result = db.runCommand(command);
                         } catch (MongoException e) {
                             throw new MojoExecutionException("Unable to execute file with name '" + file.getName() + "'", e);
                         }
-                        if (!result.ok()) {
-                            getLog().error("- file " + file.getName() + " parsed with error: " + result.getErrorMessage());
-                            throw new MojoExecutionException("Error while executing instructions from file '" + file.getName() + "': " + result.getErrorMessage(), result.getException());
+                        if (result.getInteger("ok") != 1) {
+                            getLog().error("- file " + file.getName() + " parsed with error: " + result.getString("errmsg"));
+                            throw new MojoExecutionException("Error while executing instructions from file '" + file.getName() + "': " + result.getString("errmsg"));
                         }
                         getLog().info("- file " + file.getName() + " parsed successfully");
                     }
@@ -128,13 +139,15 @@ public class MongoScriptsMojo extends AbstractEmbeddedMongoMojo {
         }
     }
 
-    DB connectToMongoAndGetDatabase() throws MojoExecutionException {
+    MongoDatabase connectToMongoAndGetDatabase() throws MojoExecutionException {
         if (databaseName == null || databaseName.trim().length() == 0) {
             throw new MojoExecutionException("Database name is missing");
         }
 
-        MongoClient mongoClient = new MongoClient("localhost", getPort());
+        ServerAddress addr = new ServerAddress(InetAddress.getLoopbackAddress(), getPort());
+
+        MongoClient mongoClient = MongoClients.create("mongodb://" + addr);
         getLog().info("Connected to MongoDB");
-        return mongoClient.getDB(databaseName);
+        return mongoClient.getDatabase(databaseName);
     }
 }
