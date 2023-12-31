@@ -10,7 +10,7 @@
 
     <groupId>io.lumeer.embedmongo</groupId>
     <artifactId>embedmongo-maven-plugin</artifactId>
-    <version>1.0.2-SNAPSHOT</version>
+    <version>1.0.1-SNAPSHOT</version>
 
     <packaging>maven-plugin</packaging>
 
@@ -30,6 +30,15 @@
             <url>https://www.gnu.org/licenses/gpl-3.0.en.html#license-text</url>
         </license>
     </licenses>
+
+    <developers>
+        <developer>
+            <name>Martin Večeřa</name>
+            <email>hello@lumeer.io</email>
+            <organization>Lumeer.io</organization>
+            <organizationUrl>https://www.lumeer.io/</organizationUrl>
+        </developer>
+    </developers>
 
     <scm>
         <url>http://github.com/Lumeer/embedmongo-maven-plugin/tree/master</url>
