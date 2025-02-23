@@ -20,12 +20,12 @@ package io.lumeer.embedmongo;
 
 import static org.apache.commons.lang3.StringUtils.*;
 
+import de.flapdoodle.net.ProxyFactory;
 import io.lumeer.embedmongo.log.Loggers;
 
 import java.io.File;
 import java.net.InetAddress;
 import java.net.URI;
-import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -36,7 +36,6 @@ import de.flapdoodle.embed.mongo.transitions.RunningMongodProcess;
 import de.flapdoodle.embed.mongo.types.DatabaseDir;
 import de.flapdoodle.embed.mongo.types.DistributionBaseUrl;
 import de.flapdoodle.embed.process.config.DownloadConfig;
-import de.flapdoodle.embed.process.net.HttpProxyFactory;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -265,7 +264,7 @@ public class StartMojo extends AbstractEmbeddedMongoMojo {
                       && equalsIgnoreCase(proxy.getProtocol(), downloadProto)
                       && !contains(proxy.getNonProxyHosts(), downloadHost)) {
                     dp.withDownloadConfig(DownloadConfig.defaults().withProxyFactory(
-                        new HttpProxyFactory(proxy.getHost(), proxy.getPort())));
+                        ProxyFactory.of(proxy.getHost(), proxy.getPort())));
                 }
             }
         }
